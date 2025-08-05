@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres
+    container_name: ecommerce_db
+    restart: always
+    ports:
+      - '5432:5432'
+    volumes:
+      - /root/task/data/pgdata:/var/lib/postgresql/data
+      - /root/task/init_database.sql:/docker-entrypoint-initdb.d/init_database.sql
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: ecommerce
+      POSTGRES_PASSWORD: ecommercepwd
+    networks:
+      - ecommerce_network
+  fastapi:
+    build:
+      context: /root/task
+      dockerfile: Dockerfile
+    container_name: ecommerce_fastapi
+    depends_on:
+      - db
+    ports:
+      - '8000:8000'
+    volumes:
+      - /root/task:/root/task
+    working_dir: /root/task
+    networks:
+      - ecommerce_network
+networks:
+  ecommerce_network:
+    driver: bridge
